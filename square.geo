@@ -1,5 +1,5 @@
 // maillage avec gmsh square.geo -2 -format msh2
-raf= 0.05;
+raf= 0.5;
 L=1;
 Point(1)= {0,0,0,raf};
 Point(2)= {L,0,0,raf};
