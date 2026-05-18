@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="E:\Users\zhoumengzhe\WenDang\WPSDrive\439667232\WPS云盘\2学习馆\法国大学计算机\L3S6\Informatique_s6\proj2026\proj2026\build\CMakeFiles\4ec4992cc661e2eb4fe83156f2f46185\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{EFED056A-DF20-342E-AB2F-4BA515ACE9EA}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
