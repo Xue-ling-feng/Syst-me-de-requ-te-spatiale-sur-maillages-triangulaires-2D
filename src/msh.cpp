@@ -110,3 +110,26 @@ ostream &operator<<(ostream &os, const Mesh &m)
     }
     return os;
 }
+
+// 3.2 ：暴力点搜索：输入(x,y),判断哪个三角形包含这个点，返回三角形的编号，如果没有找到返回-1
+int Mesh::isInTriangle(double x, double y) const {
+    if (x < 0 || x > 1 || y < 0 || y > 1  ){return -1;} // 如果超出范围，返回-1
+    // 遍历所有 mesh 里的三角形元素
+    for (int i = 0 ; i < triangle.size() ; i++ ) {
+        // 提取点 A， 点B ， 点C 的坐标：
+        double x1 = node [triangle[i][0]][0] ;
+        double y1 = node [triangle[i][0]][1] ;
+        double x2 = node [triangle[i][1]][0] ;
+        double y2 = node [triangle[i][1]][1] ;
+        double x3 = node [triangle[i][2]][0] ;
+        double y3 = node [triangle[i][2]][1] ;
+        // 求叉积
+        double cross1 = (x2 - x1) * (y - y1) - (y2 - y1) * (x - x1) ; //  AB × AP
+        double cross2 = (x3 - x2) * (y - y2) - (y3 - y2) * (x - x2) ; //  BC × BP
+        double cross3 = (x1 - x3) * (y - y3) - (y1 - y3) * (x - x3) ; //  CA × CP
+        // 判断点 (x,y) 是否在里面，是，返回三角形元素编号；否，返回-1
+        // 条件：所有叉积全部大于等于0，或小于等于0 ，P在三角形ABC内
+        if ((cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0)){return i +1;}   
+    }
+    return -1;
+}

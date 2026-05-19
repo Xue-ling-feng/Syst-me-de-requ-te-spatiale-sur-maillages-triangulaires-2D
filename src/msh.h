@@ -21,6 +21,8 @@ public:
     friend ostream &operator<<(ostream &os, const Mesh &m); // 重载输出运算符
     // affichage dans un fichier lisible par gnuplot
     void writeGnuplot(const string &filename) const; // 将网格数据写入gnuplot 脚本文件
+    
+    int isInTriangle(double x, double y) const ; // 3.2 ：暴力点搜索：输入(x,y),判断哪个三角形包含这个点，返回三角形的编号，如果没有找到返回-1
 };
 
 #endif
