@@ -1,6 +1,5 @@
 #include <msh.h>
 
-
 int main()
 {
     Mesh m("../square.msh");
