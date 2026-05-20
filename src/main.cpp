@@ -29,7 +29,7 @@ int main()
 
     // =================================================================================
     // test 3.3 ：
-    const double STEP = 0.02;
+    const double STEP = 0.05;
     m.buildHashGrid(STEP); // build hashGrid 
 
     auto start2 = std::chrono::steady_clock::now();

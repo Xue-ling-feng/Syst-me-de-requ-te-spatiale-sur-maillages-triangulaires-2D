@@ -86,6 +86,7 @@ Amélioration de l’algorithme : générer 100 000 points aléatoires, recherch
 | step | raf | hashmap | parallel-hashmap | hashmap * 1000000 | parallel-hashmap * 1000000 | 
 | :---: | :---: | :---: | :---: |:---: | :---: |
 | 0.05 | 0.005 | 1.57e-5 | 1.8e-5 | 8.06 | 7.47 |
+| 0.05 | 0.002 | 1.403e-4 | 1.412e-4 | 50.89 | 44.29 |
 | 0.02 | 0.002 |  2.94e-5 | 3.02e-5 | 9.488 | 8.91 | 
 
 Observations :    
@@ -94,7 +95,8 @@ Observations :
 
 Conclusions :   
 Donc parallel-hashmap est plus efficace que unordered_map sur des gros maillages.         
-Cependant, en n’optimisant que la bibliothèque, le gain de performance n’est pas significatif.      
+Bien qu'avec une optimisation uniquement au niveau de la bibliothèque, le gain de performance par recherche individuelle ne soit pas évident, voire légèrement plus lent.     
+Cependant, lors d'un grand nombre de recherches, à mesure que la précision du maillage augmente, l'avantage de parallel-hashmap devient plus marqué.      
 
 
 ## 3.5 Recherche des triangles voisins
