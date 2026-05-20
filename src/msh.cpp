@@ -2,6 +2,8 @@
 #include <cassert>
 #include <string>
 
+
+
 // classe maillage 2d avec liste de noeuds et liste de triangles
 // class Mesh 的构造函数：
 Mesh::Mesh(string gmsh2_filename) // 输入 .msh 文件 
@@ -112,7 +114,7 @@ ostream &operator<<(ostream &os, const Mesh &m)
 }
 
 // 3.2 ：暴力点搜索：输入(x,y),判断哪个三角形包含这个点，返回三角形的编号，如果没有找到返回-1
-int Mesh::isInTriangle(double x, double y) const {
+int Mesh::rechercheSimple(double x, double y) const {
     if (x < 0 || x > 1 || y < 0 || y > 1  ){return -1;} // 如果超出范围，返回-1
     // 遍历所有 mesh 里的三角形元素
     for (int i = 0 ; i < triangle.size() ; i++ ) {
@@ -130,6 +132,67 @@ int Mesh::isInTriangle(double x, double y) const {
         // 判断点 (x,y) 是否在里面，是，返回三角形元素编号；否，返回-1
         // 条件：所有叉积全部大于等于0，或小于等于0 ，P在三角形ABC内
         if ((cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0)){return i +1;}   
+    }
+    return -1;
+}
+
+// 3.3 : 预处理哈希表（提前吧三角形元素放进格子）
+void Mesh::buildHashGrid (double step){
+    this->step = step;
+    hashGrid.clear(); // 先清空哈希表
+    // 遍历所有三角形元素
+    for (int i = 0 ; i < triangle.size() ; i++){
+        double x1 = node [triangle [i] [0] ][0];
+        double x2 = node [triangle [i] [1] ][0];
+        double x3 = node [triangle [i] [2] ][0];
+        double y1 = node [triangle [i] [0] ][1];
+        double y2 = node [triangle [i] [1] ][1];
+        double y3 = node [triangle [i] [2] ][1];
+
+        // 计算三角形元素覆盖的坐标的范围：
+        int min_i = std::min({x1, x2, x3}) / step;
+        int min_j = std::min({y1, y2, y3}) / step;
+        int max_i = std::max({x1, x2, x3}) / step;
+        int max_j = std::max({y1,y2, y3}) / step;
+
+        // 把三角形元素的编号放进所有覆盖的格子对应的列表里：
+        for (int k = min_i ; k <= max_i ; k++) {
+            for (int j = min_j ; j <= max_j ; j ++ ){
+                hashGrid[{k , j}].push_back(i); // 注意，这里放进去的是 triangle列表 里的三角形元素的下标，真正的编号 = i+1
+            }
+        }
+    }
+}
+
+// 判断点是否在三角形内
+bool Mesh::isPointInTriangle(int tri_id, double x, double y) const {
+    double x1 = node[triangle[tri_id][0]][0];
+    double y1 = node[triangle[tri_id][0]][1];
+    double x2 = node[triangle[tri_id][1]][0];
+    double y2 = node[triangle[tri_id][1]][1];
+    double x3 = node[triangle[tri_id][2]][0];
+    double y3 = node[triangle[tri_id][2]][1];
+
+    double cross1 = (x2 - x1) * (y - y1) - (y2 - y1) * (x - x1);
+    double cross2 = (x3 - x2) * (y - y2) - (y3 - y2) * (x - x2);
+    double cross3 = (x1 - x3) * (y - y3) - (y1 - y3) * (x - x3);
+
+    return (cross1 >= 0 && cross2 >= 0 && cross3 >= 0) ||
+           (cross1 <= 0 && cross2 <= 0 && cross3 <= 0);
+}
+
+// 3.3 : 哈希搜索（对暴力点搜索的优化）
+ int Mesh::rechercheHash (double x, double y) const {
+    if (x < 0 || x > 1 || y < 0 || y > 1  ){return -1;} // 如果超出范围，返回-1
+    // 计算坐标在哪个格子
+    int i = x / step;
+    int j = y / step;
+    // 查找哈希表：拿到对应的三角形元素列表
+    auto it = hashGrid.find({i, j});
+    if ( it == hashGrid.end()) return -1;
+    // 只遍历对应的列表中的三角形元素
+    for (int tri_id : it->second) {
+        if (isPointInTriangle(tri_id , x , y )) return tri_id + 1;
     }
     return -1;
 }
