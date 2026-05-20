@@ -7,15 +7,26 @@
 #include <unordered_map>
 #include <utility>
 #include <algorithm> 
+#include "parallel_hashmap/phmap.h"
 
 using namespace std;
 
 // 给pair<int,int>写的哈希函数
+// struct PairHash {
+//     size_t operator()(const pair<int , int >& p) const {
+//         auto h1 = hash<int >{}(p.first);
+//         auto h2 = hash<int >{}(p.second);
+//         return h1 ^ ( h2 << 1) ;
+//     }
+// };
+
+// 优化 PairHash（减少冲突，phmap 也兼容这个哈希函数）
 struct PairHash {
     size_t operator()(const pair<int , int >& p) const {
-        auto h1 = hash<int >{}(p.first);
-        auto h2 = hash<int >{}(p.second);
-        return h1 ^ ( h2 << 1) ;
+        // 更高效的组合方式：避免简单异或的冲突
+        size_t h = std::hash<int>()(p.first);
+        h ^= std::hash<int>()(p.second) + 0x9e3779b9 + (h << 6) + (h >> 2);
+        return h;
     }
 };
 
@@ -27,8 +38,10 @@ private:
                                                                 // 比如 node[0] = {0.0, 0.0} 表示第一个节点的坐标是 (0.0, 0.0)
     vector<array<int, 3>> triangle; // liste des triangles (id des 3 noeuds), 
                                                                 // 比如 triangle[0] = {0, 1, 2} 表示第一个三角形由节点 0、1、2 构成
-    unordered_map<pair<int, int >, vector<int>, PairHash> hashGrid ; // 哈希表：key = 坐标， value = 三角形元素的编号组成的数组
+    // unordered_map<pair<int, int >, vector<int>, PairHash> hashGrid ; // 哈希表：key = 坐标， value = 三角形元素的编号组成的数组
     double step; // 固定步长
+
+    phmap::flat_hash_map<std::pair<int, int>, std::vector<int>, PairHash> hashGrid; // 在 parallel_hashmap 下的新hash表
 
 
 public:

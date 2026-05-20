@@ -59,8 +59,8 @@ Elle est constituée de 3 données :
 
 ## 3.3 Recherche avec hashmap
 #### Vérifiez l’accélération:
-si raf = 0.5 ，le temps d’exécution de la méthode simple est de 5e-7 s ， celui de la méthode hashmap est également de 5e-7 s     
-si raf = 0.01， le temps d’exécution de la méthode simple est de 0.0010987 s ， celui de la méthode hashmap est également de  1.57e-5 s         
+si raf = 0.5 ，le temps d’exécution de la méthode simple est de 5e-7 s , celui de la méthode hashmap est également de 5e-7 s     
+si raf = 0.01， le temps d’exécution de la méthode simple est de 0.0010987 s , celui de la méthode hashmap est également de  1.57e-5 s         
 Donc on constate:    
 - Sur un maillage grossier, les vitesses des deux algorithmes sont quasiment identiques ;
 - Sur un maillage fin, la méthode hashmap est environ 70 fois plus rapide que la méthode simple.      
@@ -70,6 +70,32 @@ En effet, la méthode hashmap ne parcourt que les triangles situés dans une pet
 Par conséquent, la méthode hashmap est toujours plus performante quelle que soit la finesse du maillage, et l’écart de temps d’exécution entre les deux méthodes s’agrandit progressivement avec l’affinement du maillage.    
 
 ## 3.4 Bibliothèques alternatives
+#### Comparer les performances sur des gros maillages:    
+| step | raf | hashmap | parallel-hashmap |
+| :---: | :---: | :---: | :---: |
+| 0.1 | 0.01 | 1.57e-5 | 2.16e-5 | 
+| 0.1 | 0.05 | 5.5e-5 | 6.13e-5 |
+
+Amélioration de l’algorithme : répéter la recherche 1 million de fois pour amplifier les différences de données：   
+| step | raf | hashmap | parallel-hashmap | hashmap * 1000000 | parallel-hashmap * 1000000 | 
+| :---: | :---: | :---: | :---: |:---: | :---: |
+| 0.1 | 0.05 | 1.2e-6 | 1.7e-6 | 0.59 | 0.90 |
+| 0.01 | 0.005 |  5.92e-5 | 7.13e-5 | 30.87 | 32.39 |
+
+Amélioration de l’algorithme : générer 100 000 points aléatoires, rechercher le même point 10 fois, optimiser PairHash :      
+| step | raf | hashmap | parallel-hashmap | hashmap * 1000000 | parallel-hashmap * 1000000 | 
+| :---: | :---: | :---: | :---: |:---: | :---: |
+| 0.05 | 0.005 | 1.57e-5 | 1.8e-5 | 8.06 | 7.47 |
+| 0.02 | 0.002 |  2.94e-5 | 3.02e-5 | 9.488 | 8.91 | 
+
+Observations :    
+1. Sur des petits maillages et des faibles quantités de recherches , la bibliothèque standard std::unordered_map est plus rapide que parallel-hashmap.
+2. Sur des gros maillages (raf >= 0.005) et un grand nombre de recherches , parallel-hashmap devient plus efficace que la bibliothèque standard.
+
+Conclusions :   
+Donc parallel-hashmap est plus efficace que unordered_map sur des gros maillages.         
+Cependant, en n’optimisant que la bibliothèque, le gain de performance n’est pas significatif.      
+
 
 ## 3.5 Recherche des triangles voisins
 
