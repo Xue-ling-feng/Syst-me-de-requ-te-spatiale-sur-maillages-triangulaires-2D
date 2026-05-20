@@ -4,19 +4,19 @@
 #### 21927425
 
 ## 3.1 Structure de données     
-我将 square.geo 文件中的 raf 参数设置为 0.5 ，最后得到了12个节点，26个单元的 square.msh 文件。
+J’ai défini le paramètre raf du fichier square.geo à 0,5 , ce qui m’a permis d’obtenir le fichier square.msh comportant 12 noeuds et 26 éléments.
 
 #### 1. 解释 .msh 文件的结构：  
-.msh 文件由3个关键字段快组成：  
-- **$MeshFormat**: 文件格式声明：
+Le fichier `\.msh` est composé de 3 blocs de données clés :  
+- **$MeshFormat**: Déclaration du format du fichier
   ```
   $MeshFormat
   2.2 0 8
   $EndMeshFormat
   ```
-  其中， 2.2 指的是Gmsh文件的格式版本；0指的是文件类型是ASCII文本格式；8指的是浮点数精度。      
+  Parmi ces valeurs, **2\.2** désigne la version du format de fichier Gmsh ; **0** indique que le type de fichier est au format texte ASCII ; **8** correspond à la précision des nombres flottants.      
 
-- **$Nodes** ：节点块：
+- **$Nodes** ：Bloc des nœuds：
   ```
   $Nodes
    12
@@ -25,9 +25,9 @@
    ...
    $EndNodes
   ```
-  其中第一行的12是节点总数。从第二行开始，第一列是节点序号，从1到12；第二、三、四列是节点坐标(x,y,z)。
+  Le nombre 12 sur la première ligne représente le nombre total de nœuds\. À partir de la deuxième ligne, la première colonne correspond au numéro d\&\#39;identification du nœud \(de 1 à 12\) ; les deuxième, troisième et quatrième colonnes sont les coordonnées du nœud $(x, y, z)$.   
 
-- **$Elements** ： 单元块：
+- **$Elements** ： Bloc des éléments finis:
   ```
     $Elements
     26
@@ -39,25 +39,35 @@
     ...
     $EndElements
   ```
-    其中第一行的26是单元总数。  
-    从第二行开始，每一行代表一个单元，其中又分为3类：   
-    1. 从1到4，都是**点单元**（15），后面跟两个标签（2），分别是物理标签和几何标签：物理标签是默认的（0）；几何标签：按生成顺序编号从1到4（1），由1个节点组成，点单元1是节点（1）。
-    2. 从5到12，都是**线单元** （1），后面跟两个标签（2），分别是物理标签和几何标签：物理标签是默认的（0）；几何标签：按生成顺序编号从1到4（1），由2个节点组成，线单元5是节点（1 5）。
-    3. 从13到26，都是**三角形单元**（2），后面跟两个标签（2），分别是物理标签和几何标签：物理标签是默认的（0）；几何标签：按生成顺序编号1（1），因为是同时生成的，所以只有1，由三个节点组成，三角形单元13是节点（6 3 11），     
-#### 2. Mesh类数据结构：
-有3个数据构成：
-1. 网格格式信息（Gmsh版本，文件类型，数据精度）
-2. 节点集合（节点ID，节点坐标（x,y,z））
-3. 单元集合（单元ID，单元类型，标签数量，物理标签，几何标签）       
+    Le nombre 26 sur la première ligne est le nombre total d'éléments.    
+    À partir de la deuxième ligne, chaque ligne représente un élément, qui se divise en 3 catégories :       
+    1. De 1 à 4 : ce sont des **éléments ponctuels**(15), suivis de deux étiquettes(2),l'étiquette physique et l'étiquette géométrique. L'étiquette physique est par défaut (0) ; l'étiquette géométrique est numérotée de 1 à 4 (1), selon l'ordre de génération.Chaque élément ponctuel est constitué de 1 nœud (ex : l'élément ponctuel 1 correspond au nœud 1).
+    2. De 5 à 12 : ce sont des **éléments linéaires** (1), suivis de deux étiquettes (2) : étiquette physique (0 par défaut) et étiquette géométrique (numérotée de 1 à 4(1). Chaque élément linéaire est constitué de 2 nœuds (ex : l'élément linéaire 5 correspond aux nœuds 1 et 5).
+    3. De 13 à 26 : ce sont des **éléments triangulaires** (2), suivis de deux étiquettes (2) : étiquette physique (0 par défaut) et étiquette géométrique (1) (car générés simultanément). Chaque élément triangulaire est constitué de 3 nœuds (ex : l'élément triangulaire 13 correspond aux nœuds 6, 3 et 11).     
+#### 2. Structure de données de la classe Mesh：
+Elle est constituée de 3 données :    
+1. Les informations du format du maillage (version Gmsh, type de fichier, précision des données)    
+2. L'ensemble des nœuds (ID du nœud, coordonnées du nœud \((x,y,z)\))   
+3. L'ensemble des éléments (ID de l'élément, type d'élément, nombre d'étiquettes, étiquette physique, étiquette géométrique)           
 #### 3. Expliquer comment fonctionne le programme de test.
-1. 在读取 square.msh 文件之后，把数据装进 Mesh类中。       
-2. 将 $MeshFormat 中的数据储存到 mesh.format ； $Nodes 中的数据储存到 mesh.nodes ； $Element 中的数据储存到 mesh.elements 。   
-4. 运行 Mesh类中的函数，判断数据是否正确无误。     
-5. 如果正确，输出数据。
+1. Après lecture du fichier square.msh, les données sont stockées dans la classe Mesh.
+2. Les données du bloc $MeshFormat sont enregistrées dans mesh.format ; les données du bloc $Nodes sont stockées dans mesh.nodes ; les données du bloc $Elements sont enregistrées dans mesh.elements.
+3. Les fonctions de la classe Mesh sont exécutées pour vérifier si les données sont correctes.
+4. Si les données sont valides, le programme affiche les résultats.
 
 ## 3.2 Recherche simple
 
 ## 3.3 Recherche avec hashmap
+#### Vérifiez l’accélération:
+si raf = 0.5 ，le temps d’exécution de la méthode simple est de 5e-7 s ， celui de la méthode hashmap est également de 5e-7 s     
+si raf = 0.01， le temps d’exécution de la méthode simple est de 0.0010987 s ， celui de la méthode hashmap est également de  1.57e-5 s         
+Donc on constate:    
+- Sur un maillage grossier, les vitesses des deux algorithmes sont quasiment identiques ;
+- Sur un maillage fin, la méthode hashmap est environ 70 fois plus rapide que la méthode simple.      
+
+Alors nous pouvons en conclure que plus le maillage est fin, plus l’effet d’accélération de la méthode hashmap est important.     
+En effet, la méthode hashmap ne parcourt que les triangles situés dans une petite case spatiale, alors que la méthode simple doit parcourir l’ensemble des triangles du maillage.        
+Par conséquent, la méthode hashmap est toujours plus performante quelle que soit la finesse du maillage, et l’écart de temps d’exécution entre les deux méthodes s’agrandit progressivement avec l’affinement du maillage.    
 
 ## 3.4 Bibliothèques alternatives
 
