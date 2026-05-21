@@ -99,6 +99,19 @@ Bien qu'avec une optimisation uniquement au niveau de la bibliothèque, le gain 
 Cependant, lors d'un grand nombre de recherches, à mesure que la précision du maillage augmente, l'avantage de parallel-hashmap devient plus marqué.      
 
 
-## 3.5 Recherche des triangles voisins
+## 3.5 Recherche des triangles voisins      
+选择编号为4的三角形元素作为目标三角形，测试在不同精度的maillages 中 fonction naive 和 使用parallel-hashmap搜索消耗的时间分别是多少：      
+| raf | naive / s  | parallel-hashmap / s |
+| :---: | :---: | :---: |
+| 0.5 | 4.1e-6 | 1.7e-6 | 
+| 0.05 | 3.92e-5 | 1.8e-6 |
+| 0.005 | 3.48e-3 | 2.9e-6 |
+所以很明显可以得出结论：    
+使用 parallel-hashmap 搜索的效率比使用 fonction naive 高得多。      
+并且随着精细度提高，这种优势更加明显。      
 
-## 3.6 Visualisations
+
+## 3.6 Visualisations     
+
+
+
