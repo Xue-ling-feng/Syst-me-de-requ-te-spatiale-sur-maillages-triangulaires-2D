@@ -2,12 +2,26 @@
 #include <iostream>
 #include <chrono>
 #include <random>
+#include <string>
 
 // 生成 [0,1) 范围内的随机数
-double random01() {
+static double random01() {
     static std::mt19937 gen(std::random_device{}());
     static std::uniform_real_distribution<double> dist(0.0, 1.0);
     return dist(gen);
+}
+
+// 打印向量工具函数
+static void printVector (const std::vector<int>& vec, const std::string& name,const int& num) {
+    std::cout << name << ": ";
+    if (vec.empty()) {
+        std::cout << "il n'a pas de triangle voisin ." << std::endl ;
+    } else {
+        for (int i : vec) {
+            std::cout << i << " ";
+        }
+        std::cout << "sont des triangle voisin de " << num << std::endl;
+    }
 }
 
 int main()
@@ -61,6 +75,29 @@ int main()
 
     std::cout << "step =" << STEP << "nombre de recherche = " << TEST_POINT_NUM*10 << std::endl;
     std::cout << " utilise en total " << time_std << " s" << std::endl;
+
+    // ===================================================================================
+    // test 3.5 : 
+    int NUM_TRI = 4;
+    // naive : 
+   auto start4 = std::chrono::steady_clock::now();
+    std::vector<int> neighbor_naive = m.rechercheTriVNaive( NUM_TRI );
+    auto end4 = std::chrono::steady_clock::now();
+    double time_naive = std::chrono::duration<double>(end4 - start4).count(); // 计算耗时
+    string name1 = "par fonction naive";
+    printVector(neighbor_naive, name1 , NUM_TRI);
+    std::cout << name1 << "il utilise " << time_naive << " s " << std::endl;
+
+    //hash :
+    m.buildHashGrid_edge(); // build hashGrid_edge
+    auto start5 = std::chrono::steady_clock::now();
+    std::vector<int> neighbor_hash = m.rechercheTriVHash( NUM_TRI );
+    auto end5 = std::chrono::steady_clock::now();
+    double time_hashEdge = std::chrono::duration<double>(end5 - start5).count(); // 计算耗时
+    string name2 = "par methode hashmap";
+    printVector(neighbor_hash, name2, NUM_TRI) ;
+    std::cout << name2 << "il utilise " << time_hashEdge << " s " << std::endl;
+
 
 
     return 0;
