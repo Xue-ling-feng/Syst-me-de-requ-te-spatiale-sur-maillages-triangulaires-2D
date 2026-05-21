@@ -6,7 +6,7 @@
 ## 3.1 Structure de données     
 J’ai défini le paramètre raf du fichier square.geo à 0,5 , ce qui m’a permis d’obtenir le fichier square.msh comportant 12 noeuds et 26 éléments.
 
-#### 1. 解释 .msh 文件的结构：  
+#### 1. Explication de la structure du fichier .msh  
 Le fichier `\.msh` est composé de 3 blocs de données clés :  
 - **$MeshFormat**: Déclaration du format du fichier
   ```
@@ -85,8 +85,8 @@ Amélioration de l’algorithme : répéter la recherche 1 million de fois pour 
 Amélioration de l’algorithme : générer 100 000 points aléatoires, rechercher le même point 10 fois, optimiser PairHash :      
 | step | raf | hashmap | parallel-hashmap | hashmap * 1000000 | parallel-hashmap * 1000000 | 
 | :---: | :---: | :---: | :---: |:---: | :---: |
-| 0.05 | 0.005 | 1.57e-5 | 1.8e-5 | 8.06 | 7.47 |
-| 0.05 | 0.002 | 1.403e-4 | 1.412e-4 | 50.89 | 44.29 |
+| 0.05 | 0.005 | 1.57e-5 | 1.8e-5 | **8.06** | **7.47** |
+| 0.05 | 0.002 | 1.403e-4 | 1.412e-4 | **50.89** | **44.29** |
 | 0.02 | 0.002 |  2.94e-5 | 3.02e-5 | 9.488 | 8.91 | 
 
 Observations :    
@@ -104,9 +104,8 @@ Choisissez l'élément triangle numéro 4 comme triangle cible, et mesurez le te
 
 | raf | naive / s  | parallel-hashmap / s |
 | :---: | :---: | :---: |
-| 0.5 | 4.1e-6 | 1.7e-6 | 
-| 0.05 | 3.92e-5 | 1.8e-6 |
-| 0.005 | 3.48e-3 | 2.9e-6 |    
+| 0.5 | 1.84e-5 | 1.7e-6 | 
+| 0.05 | 3.17e-2 | 1.8e-6 |
 
 Donc on peut donc clairement conclure que :     
 l'efficacité de la recherche avec parallel-hashmap est bien supérieure à celle avec la fonction naïve.          
@@ -115,5 +114,25 @@ De plus, cet avantage devient encore plus marqué à mesure que la finesse du ma
 
 ## 3.6 Visualisations     
 
+## Annexe : Utilisation de l’intelligence artificielle     
+Les prompts que j’utilise fréquemment sont les suivants :        
+- Traduire en chinois, sans écrire de code  
+Ce prompt est très pratique et m’aide à comprendre rapidement les sujets.    
+Cependant, les traductions de l’IA sont souvent imprécises. Je dois donc vérifier les mots-clés de chaque question avec Google Traduction.    
 
+- Vérifier les erreurs dans mon code
+C’est celui que j’utilise le plus. L’IA lit le code plus rapidement et plus attentivement que moi. Après avoir écrit beaucoup de code, je passe beaucoup de temps à le réexaminer, et les erreurs sont presque toujours des détails mineurs.      
+Par exemple, le numéro du triangle et l’indice du triangle ne sont pas les mêmes : il faut utiliser l’indice pour stocker dans la liste triangle, et le numéro pour l’affichage. J’oubliais parfois ce que représentait exactement ma variable (indice ou numéro). J’ai donc pris l’habitude d’utiliser tri_id exclusivement pour désigner l’indice.      
+Par ailleurs, l’IA m’a aidé à sortir de certaines impasses dans ma réflexion.             
+Par exemple, pour la partie 3.4, je pensais que parallel-hashmap devrait toujours être plus efficace que hashmap, quelle que soit la précision du maillage ou la taille des données traitées. Quand j’ai obtenu des résultats où parallel-hashmap était légèrement plus lent avec step = 0.01 et raf = 0.005, j’ai cru que mon code contenait des erreurs et l’ai revu plusieurs fois. L’IA m’a alors expliqué que la différence ne se voit que sur des données très volumineuses, et que hashmap est en réalité plus efficace quand le maillage n’est pas très précis. De plus, je ne devais pas réduire trop la valeur de step, car cela rendait les résultats difficiles à observer.          
+Mais l’IA n’est pas parfaite.             
+Par exemple, elle m’a conseillé d’ajouter static_cast<int> pour convertir le résultat de triangle.size() en entier, afin d’éviter des comparaisons erronées du type -1 < 0. Or, la variable i de type int a très peu de chances de devenir négative, du moins pas dans ce projet. Cet ajout ne fait qu’alourdir inutilement la charge du CPU. Néanmoins, j’ai quand même suivi ce conseil pour apprendre cette nouvelle notion.     
+
+-  Comment utiliser xxx
+J’utilise ce prompt pour demander l’utilisation de Git, ainsi que celle de Gnuplot pour la partie 3.6. Pour maîtriser les règles syntaxiques complètes, je clique systématiquement sur les sites référencés par l’IA pour consulter les documentations originales.            
+Par ailleurs, pour éviter les oublis d’un seul outil, j’interroge plusieurs IA en même temps et compare leurs réponses.     
+
+
+- Pourquoi écrire xxx comme ça     
+J’utilise ce prompt en complément du précédent. L’IA introduit souvent des définitions ou des termes inconnus ; je dois donc poursuivre les questions pour en comprendre le sens profond.       
 

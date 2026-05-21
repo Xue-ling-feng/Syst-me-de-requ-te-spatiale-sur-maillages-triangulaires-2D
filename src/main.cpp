@@ -4,14 +4,14 @@
 #include <random>
 #include <string>
 
-// 生成 [0,1) 范围内的随机数
+// Générer un nombre aléatoire dans l'intervalle [0,1)
 static double random01() {
     static std::mt19937 gen(std::random_device{}());
     static std::uniform_real_distribution<double> dist(0.0, 1.0);
     return dist(gen);
 }
 
-// 打印向量工具函数
+// Fonction pour afficher un vecteur
 static void printVector (const std::vector<int>& vec, const std::string& name,const int& num) {
     std::cout << name << ": ";
     if (vec.empty()) {
@@ -37,7 +37,7 @@ int main()
    auto start1 = std::chrono::steady_clock::now();
     int num_simple = m.rechercheSimple(x,y) ;
     auto end1 = std::chrono::steady_clock::now();
-    double time_simple = std::chrono::duration<double>(end1 - start1).count(); // 计算耗时
+    double time_simple = std::chrono::duration<double>(end1 - start1).count(); 
     std::cout << "point (" << x << "," << y <<") est dans le triangle de numero " << num_simple << " par recherche simple." << std::endl;
     std::cout << "methode simple utilise " << time_simple << " s " << std::endl;
 
@@ -55,17 +55,16 @@ int main()
 
     // =================================================================================
     // test 3.4 : repeter 1000000 fois
-    //  生成10万个随机点（避免缓存效应）
+    // Générer 100 000 points aléatoires pour éviter l'effet de cache
     const int TEST_POINT_NUM = 100000;
     std::vector<std::pair<double, double>> test_points;
     for (int i=0; i<TEST_POINT_NUM; i++) {
         test_points.emplace_back(random01(), random01());
     }
 
-    // 测试：
     auto start3 = std::chrono::high_resolution_clock::now();
     for (const auto& p : test_points) {
-        // 重复10次查找同一个随机点，放大耗时差异
+        // Répéter la recherche 10 fois sur le même point aléatoire pour amplifier la différence de temps d'exécution
         for (int k=0; k<10; k++) {
             m.rechercheHash(p.first, p.second);
         }
@@ -78,12 +77,12 @@ int main()
 
     // ===================================================================================
     // test 3.5 : 
-    int NUM_TRI = 4; // 三角形的编号
+    int NUM_TRI = 4; // numero de tri
     // naive : 
    auto start4 = std::chrono::steady_clock::now();
     std::vector<int> neighbor_naive = m.rechercheTriVNaive( NUM_TRI );
     auto end4 = std::chrono::steady_clock::now();
-    double time_naive = std::chrono::duration<double>(end4 - start4).count(); // 计算耗时
+    double time_naive = std::chrono::duration<double>(end4 - start4).count(); 
     string name1 = "par fonction naive";
     printVector(neighbor_naive, name1 , NUM_TRI);
     std::cout << name1 << "il utilise " << time_naive << " s " << std::endl;
@@ -93,7 +92,7 @@ int main()
     auto start5 = std::chrono::steady_clock::now();
     std::vector<int> neighbor_hash = m.rechercheTriVHash( NUM_TRI );
     auto end5 = std::chrono::steady_clock::now();
-    double time_hashEdge = std::chrono::duration<double>(end5 - start5).count(); // 计算耗时
+    double time_hashEdge = std::chrono::duration<double>(end5 - start5).count(); 
     string name2 = "par methode hashmap";
     printVector(neighbor_hash, name2, NUM_TRI) ;
     std::cout << name2 << "il utilise " << time_hashEdge << " s " << std::endl;

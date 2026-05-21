@@ -6,34 +6,34 @@
 
 
 // classe maillage 2d avec liste de noeuds et liste de triangles
-// class Mesh 的构造函数：
-Mesh::Mesh(string gmsh2_filename) // 输入 .msh 文件 
+Mesh::Mesh(string gmsh2_filename) // Prendre le fichier .msh en entrée
 {
-    ifstream file = ifstream(gmsh2_filename); // ifstream = 一个 C++ 专门用来「读文本文件」的工具
-                                                                                // 读取 .msh 文件 储存 进 file 变量
-    // 如果文件打不开，抛出异常：
+    ifstream file = ifstream(gmsh2_filename); // ifstream = outil C++ dédié à la lecture de fichiers texte
+                                                                                // Lire le fichier .msh et le stocker dans la variable file
+    // Si le fichier ne peut pas être ouvert, lancer une exception :
     if (!file.is_open()) {
         throw runtime_error("file not found");
     }
     string line;
-    while (std::getline(file, line)) // 遍历文件的每一行
-                                                        // getline = 按行读取 : 从 file 里读取一行文本，储存在 line 里
+    while (std::getline(file, line)) // Parcourir chaque ligne du fichier
+                                                        // getline = lecture ligne par ligne : lire une ligne de texte depuis file et la stocker dans line
     {
-        // 解析 $Nodes 部分：
+        // Analyser la section $Nodes :
         if (line == "$Nodes")
         {
             int n;
-            file >> n; // 按数字读取 
-                            // 读取 n 是因为 n 是节点数量
-            node.resize(n); // node 开辟 n 个位置
+            file >> n; // Lecture par nombre
+                            // Lire n car n est le nombre de noeuds
+            node.resize(n); // Réserver n emplacements pour node
             for (int i = 0; i < n; i++)
             {
                 int id;
                 double z;
-                file >> id; // 读取节点编号
-                file >> node[id - 1][0] >> node[id - 1][1] >> z; // 读取坐标(x,y,z)，作为一个数组储存进 node 的第 id-1 个位置，
-                // file >> 储存连续数字到一个数组中，只需要提供最后一个变量就可以了
-                // std::array<double , 3 > t ; file >> t[0] >> t[1] >> t[2] ; node.push_back(t) ; 也可以这样写
+                file >> id; // Lire le numéro du noeud
+                file >> node[id - 1][0] >> node[id - 1][1] >> z; 
+                // Lire les coordonnées (x,y,z) et les stocker dans le (id-1)ème emplacement de node sous forme de tableau,
+                // file >> permet de stocker des nombres consécutifs dans un tableau, il suffit de fournir la dernière variable
+                // On peut aussi écrire : std::array<double , 3 > t ; file >> t[0] >> t[1] >> t[2] ; node.push_back(t) ;
             }
         }
         if (line == "$Elements")
@@ -43,26 +43,26 @@ Mesh::Mesh(string gmsh2_filename) // 输入 .msh 文件
             for (int i = 0; i < n; i++)
             {
                 int id, type, ntags; 
-                file >> id >> type >> ntags; // 编号，类型，标签数量
-                for (int j = 0; j < ntags; j++)  // 将 ntags 后面两个数字读取但不使用
-                // 因为后面两个数字，一个是物理标签，一个是几何标签，在这个程序里不用
+                file >> id >> type >> ntags; //  Numéro, type, nombre de tags
+                for (int j = 0; j < ntags; j++)  // Lire les deux nombres après ntags mais ne pas les utiliser
+                // Parce que les deux nombres suivants sont un tag physique et un tag géométrique, inutiles dans ce programme
                 {
                     int tag;
                     file >> tag;
                 }
-                if (type == 2) // 只在 triangle 中储存三角形单元
+                if (type == 2) // Stocker uniquement les éléments triangulaires dans triangle
                 {
                     array<int, 3> t;
                     file >> t[0] >> t[1] >> t[2];
                     t[0]--;
                     t[1]--;
-                    t[2]--; // 为了在 node 数组中找得到，所以用node数组中的字节编号
+                    t[2]--; // Pour pouvoir trouver dans le tableau node, on utilise l'indice du tableau node (d'où la soustraction de 1)
                     triangle.push_back(t); 
-                } // sinon sauter la ligne (on ne connait pas sa taille)
+                } // sinon, sauter la ligne (on ne connaît pas sa taille)
                 else
                 {
                     string line;
-                    std::getline(file, line); // 直接跳过这一行
+                    std::getline(file, line); // Sauter directement cette ligne
                 }
             }
         }
@@ -70,36 +70,35 @@ Mesh::Mesh(string gmsh2_filename) // 输入 .msh 文件
 };
 
 // affichage dans un fichier lisible par gnuplot
-// class Mesh 的成员函数：
 void Mesh::writeGnuplot(const string &filename) const
 {
-    ofstream file(filename); // ofstream = 一个 C++ 专门用来「写文本文件」的工具
+    ofstream file(filename); // ofstream = outil C++ dédié à la lecture de fichiers texte
 
-    // file << "set terminal postscript eps enhanced color" << endl; // 把图片输出成 .eps 格式（矢量图），带颜色。
-    // file << "set output '" << filename << ".eps'" << endl; // 把画好的图保存成 xxx.eps 文件。
-    //  file << "set xrange [-1:1]" << endl; // 强制 X 轴范围从 -1 到 1
-    //  file << "set yrange [-1:1]" << endl; // 强制 Y 轴范围从 -1 到 1。
-    //  freeze aspect ratio // 冻结横纵比例
+    // file << "set terminal postscript eps enhanced color" << endl; // Exporter l'image au format .eps (image vectorielle), en couleur
+    // file << "set output '" << filename << ".eps'" << endl; // Enregistrer le graphique dans un fichier xxx.eps
+    //  file << "set xrange [-1:1]" << endl; // Forcer la plage de l'axe X de -1 à 1
+    //  file << "set yrange [-1:1]" << endl; // Forcer la plage de l'axe Y de -1 à 1
+    //  freeze aspect ratio // Geler le rapport d'aspect
 
-    file << "set size ratio -1" << endl; // 让 x 轴和 y 轴的单位长度相同，不然的话会让图形视觉效果上变形
-                                                                    // - 表示自动保持真实几何比例
-    file << "plot '-' with linespoints" << endl; // 开始画图，数据从下面的文字里读取，用线、点 linespoints 画出来
-                                                                                // ‘-’ 表示数据从下面的文字里读取
+    file << "set size ratio -1" << endl; // Faire en sorte que les unités de longueur des axes X et Y soient identiques, sinon le graphique serait déformé visuellement
+                                                                // Le signe - signifie maintenir automatiquement le vrai rapport géométrique
+    file << "plot '-' with linespoints" << endl; // Commencer à dessiner le graphique, les données sont lues depuis le texte ci-dessous, dessinées avec des lignes et des points (linespoints)
+                                                                             // '-' signifie que les données sont lues depuis le texte ci-dessous
+
 
     for (int i = 0; i < triangle.size(); i++)
     {
-        file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl; // 画三角形的第一个点， 以13 2 2 0 1 6 3 11举例，画出了 6 和 3 这两个点
-        file << node[triangle[i][1]][0] << " " << node[triangle[i][1]][1] << endl; // 画三角形的第二个点，以13 2 2 0 1 6 3 11举例，画出了 3 和 11 这两个点
-        file << node[triangle[i][2]][0] << " " << node[triangle[i][2]][1] << endl; // 画三角形的第三个点， 以13 2 2 0 1 6 3 11举例，画出了 11 和 6 这两个点
-        file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl; // 画三角形的第一个点（闭合三角形）
-        file << endl; // 空行分隔不同的三角形
+        file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl; 
+        file << node[triangle[i][1]][0] << " " << node[triangle[i][1]][1] << endl; 
+        file << node[triangle[i][2]][0] << " " << node[triangle[i][2]][1] << endl; 
+        file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl; 
+        file << endl; // Ligne vide pour séparer les différents triangles
     }
-    file << "e" << endl;  // 告诉Gnuplot数据结束
-    file << "pause -1";  // 暂停Gnuplot窗口（防止闪退）
+    file << "e" << endl;  // Indiquer à Gnuplot la fin des données
+    file << "pause -1";  // Mettre en pause la fenêtre Gnuplot (pour éviter qu'elle se ferme abruptement)
     file.close();
 }
 
-// clss Mesh 的重载运算符<< :
 ostream &operator<<(ostream &os, const Mesh &m)
 {
     os << "Mesh with " << m.node.size() << " nodes and " << m.triangle.size() << " triangles" << endl;
@@ -115,35 +114,35 @@ ostream &operator<<(ostream &os, const Mesh &m)
 }
 
 // =============================================================================================================
-// 3.2 ：暴力点搜索：输入(x,y),判断哪个三角形包含这个点，返回三角形的编号，如果没有找到返回-1
+// 3.2 ：recherche Simple：Prendre (x,y) en entrée, déterminer quel triangle contient ce point, retourner le numéro du triangle, ou -1 si aucun n'est trouvé
 int Mesh::rechercheSimple(double x, double y) const {
-    if (x < 0 || x > 1 || y < 0 || y > 1  ){return -1;} // 如果超出范围，返回-1
-    // 遍历所有 mesh 里的三角形元素
+    if (x < 0 || x > 1 || y < 0 || y > 1  ){return -1;} // Si le point est hors de la plage, retourner -1
+    // Parcourir tous les éléments triangulaires du maillage
     for (int i = 0 ; i < triangle.size() ; i++ ) {
-        // 提取点 A， 点B ， 点C 的坐标：
+         // Extraire les coordonnées des points A, B et C :
         double x1 = node [triangle[i][0]][0] ;
         double y1 = node [triangle[i][0]][1] ;
         double x2 = node [triangle[i][1]][0] ;
         double y2 = node [triangle[i][1]][1] ;
         double x3 = node [triangle[i][2]][0] ;
         double y3 = node [triangle[i][2]][1] ;
-        // 求叉积
+        // Calculer les produits vectoriels
         double cross1 = (x2 - x1) * (y - y1) - (y2 - y1) * (x - x1) ; //  AB × AP
         double cross2 = (x3 - x2) * (y - y2) - (y3 - y2) * (x - x2) ; //  BC × BP
         double cross3 = (x1 - x3) * (y - y3) - (y1 - y3) * (x - x3) ; //  CA × CP
-        // 判断点 (x,y) 是否在里面，是，返回三角形元素编号；否，返回-1
-        // 条件：所有叉积全部大于等于0，或小于等于0 ，P在三角形ABC内
+         // Vérifier si le point (x,y) se trouve à l'intérieur, si oui, retourner le numéro de l'élément triangulaire ; sinon, retourner -1
+        // Condition : tous les produits vectoriels sont >= 0 ou <= 0, alors P est à l'intérieur du triangle ABC
         if ((cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0)){return i +1;}   
     }
     return -1;
 }
 
 // =============================================================================================================
-// 3.3 : 预处理哈希表（提前吧三角形元素放进格子）
+// 3.3 : Prétraitement：build  hashGrid  (placer les éléments triangulaires dans les cases à l'avance)
 void Mesh::buildHashGrid (double step){
     this->step = step;
-    hashGrid.clear(); // 先清空哈希表
-    // 遍历所有三角形元素
+    hashGrid.clear(); // Vider d'abord la table de hachage
+    // Parcourir tous les éléments triangulaires
     for (int i = 0 ; i < triangle.size() ; i++){
         double x1 = node [triangle [i] [0] ][0];
         double x2 = node [triangle [i] [1] ][0];
@@ -152,22 +151,22 @@ void Mesh::buildHashGrid (double step){
         double y2 = node [triangle [i] [1] ][1];
         double y3 = node [triangle [i] [2] ][1];
 
-        // 计算三角形元素覆盖的坐标的范围：
+         // Calculer la plage de coordonnées couverte par l'élément triangulaire :
         int min_i = std::min({x1, x2, x3}) / step;
         int min_j = std::min({y1, y2, y3}) / step;
         int max_i = std::max({x1, x2, x3}) / step;
         int max_j = std::max({y1,y2, y3}) / step;
 
-        // 把三角形元素的编号放进所有覆盖的格子对应的列表里：
+       // Ajouter le numéro de l'élément triangulaire à la liste correspondante de toutes les cellules couvertes
         for (int k = min_i ; k <= max_i ; k++) {
             for (int j = min_j ; j <= max_j ; j ++ ){
-                hashGrid[{k , j}].push_back(i); // 注意，这里放进去的是 triangle列表 里的三角形元素的下标，真正的编号 = i+1
+                hashGrid[{k , j}].push_back(i); // Attention : l'indice de l'élément triangulaire dans la liste `triangle` est stocké ici, le véritable numéro = i+1
             }
         }
     }
 }
 
-// 判断点是否在三角形内
+//si un point se trouve à l'intérieur d'un triangle
 bool Mesh::isPointInTriangle(int tri_id, double x, double y) const {
     double x1 = node[triangle[tri_id][0]][0];
     double y1 = node[triangle[tri_id][0]][1];
@@ -184,16 +183,16 @@ bool Mesh::isPointInTriangle(int tri_id, double x, double y) const {
            (cross1 <= 0 && cross2 <= 0 && cross3 <= 0);
 }
 
-// 3.3 : 哈希搜索（对暴力点搜索的优化）
+// 3.3 : recherche de Hashmap
  int Mesh::rechercheHash (double x, double y) const {
-    if (x < 0 || x > 1 || y < 0 || y > 1  ){return -1;} // 如果超出范围，返回-1
-    // 计算坐标在哪个格子
+    if (x < 0 || x > 1 || y < 0 || y > 1  ){return -1;} // hors de la plage, retourner -1
+    // calcule coordonnee
     int i = x / step;
     int j = y / step;
-    // 查找哈希表：拿到对应的三角形元素列表
+    // Rechercher dans la table de hachage : obtenir la liste correspondante des éléments triangulaires
     auto it = hashGrid.find({i, j});
     if ( it == hashGrid.end()) return -1;
-    // 只遍历对应的列表中的三角形元素
+    // // Parcourir uniquement les éléments triangulaires présents dans la liste correspondante
     for (int tri_id : it->second) {
         if (isPointInTriangle(tri_id , x , y )) return tri_id + 1;
     }
@@ -201,35 +200,39 @@ bool Mesh::isPointInTriangle(int tri_id, double x, double y) const {
 }
 
 // =============================================================================================================
-// 判断两个三角形是否共边：
+// si deux triangles partagent un côté
 bool Mesh::isShareEdge(int tri_id1, int tri_id2) const {
     int common = 0 ; 
     for (int i : triangle[tri_id1]) {
         for (int j : triangle[tri_id2]) {
             if ( i == j ) common ++;
-            if ( common >= 2 ) return true ; // 找到两个共点 = 共边
+            if ( common >= 2 ) return true ; // trouver 2 ptr = un cote
         }
     }
     return false;
 }
 
-// 3.5 : fonction naive : 输入指定三角形元素的编号n ( 对应的下标tri_id = n-1)，返回这个三角形元素周围的三角形元素组成的列表
-std::vector<int> Mesh::rechercheTriVNaive (int n ) const {
-    // 创建一个列表用于储存相邻三角形元素的编号（从1开始）
-    vector<int> neighbors; 
-    // triangle.size() 返回的是 size_t（无符号整数），n 是 int（有符号），不能直接比较！
-    // 所以要加 static_cast<int> 把它强制变成 int
-    if ( n < 1 || n > static_cast<int>(triangle.size()) ) return neighbors; 
-
-    int tri_id = n - 1 ; // triangle 列表中三角形的下标
-    for (int i = 0 ; i <  static_cast<int>(triangle.size())  ; i++ ){
-        if ( i == tri_id ) continue;
-        if (isShareEdge( i , tri_id)) neighbors.push_back( i + 1 ) ;
+// 3.5 : fonction naive : 
+std::vector<std::vector<int>> Mesh::fonctionNaive() const {
+    // triangle.size() renvoie un type size_t (entier non signé), tandis que n est de type int (entier signé) : ils ne peuvent pas être comparés directement !
+    // Il faut donc ajouter static_cast<int> pour convertir explicitement en int
+    int n = static_cast<int>(triangle.size());
+    std::vector<std::vector<int>> all_neighbors(n) ;
+    for (int i = 0 ; i < n ; i++ ) {
+        for (int j = 0 ; j < n ; j ++ ){
+            if ( i == j ) continue;
+            if (isShareEdge( i , j)) all_neighbors[ i ].push_back( j + 1 ) ;
+        }
     }
-    return neighbors;
+    return all_neighbors;
+}
+std::vector<int> Mesh::rechercheTriVNaive (int n ) const {
+    std::vector<std::vector<int>> all_neighbors  = fonctionNaive();
+    if ( n < 1 || n > static_cast<int>(triangle.size()) ) return { }; 
+    return all_neighbors[ n-1 ];
 }
 
-// 辅助函数：生成标准化边
+// Fonction auxiliaire : Générer les côtés normalisés
 std::vector<std::pair<int, int >> Mesh::getEdges (const std::array<int , 3>& tri) const {
     std::vector<std::pair<int, int>> edges;
     edges.emplace_back(std::min(tri[0],tri[1]), std::max(tri[0],tri[1]));
@@ -238,62 +241,62 @@ std::vector<std::pair<int, int >> Mesh::getEdges (const std::array<int , 3>& tri
     return edges;
 }
 
-// 3.5： 预处理：构建哈希表
+// 3.5：  Prétraitement：build  hashGrid 
 void Mesh::buildHashGrid_edge() {
     hashGrid_edge.clear();
-    // 遍历所有三角形元素
+    // parcour triangle 
     for (int i = 0 ; i <  static_cast<int>(triangle.size())  ; i++ ) {
-        // 遍历所有三角形元素的标准边组成的列表
+        // parcour list des cote 
         for (const auto& j : getEdges(triangle[i])){
-            hashGrid_edge[ j ].push_back(i) ; // 放进哈希表里
+            hashGrid_edge[ j ].push_back(i) ; 
         }
     }
 } 
-// 3.5 : 哈希搜索
+// 3.5 : recherche Hashmap
 std::vector<int > Mesh::rechercheTriVHash (int n ) const {
-    // 创建一个列表用于储存相邻三角形元素的编号（从1开始）
     std::vector<int> neighbors ; 
     if ( n < 1 || n >  static_cast<int>(triangle.size())  ) return neighbors;
 
-    int tri_id = n - 1 ; // 三角形元素的下标
+    int tri_id = n - 1 ; //  indice de tri
     const auto& currentTri = triangle[ tri_id ] ;
-    // 遍历currentTri的标准边组成的列表，
+    // // Parcour la liste des côtés normalisés de `currentTri`
     for ( const auto& i : getEdges(currentTri)) {
-        // 查找哈希表：
+        //  recherche dans hashmap:
         auto it = hashGrid_edge.find ( i ) ;
-        if ( it != hashGrid_edge.end() ) { // 当it 存在于哈希表中的时候，提取其中的三角形编号放进 neighbors
+        if ( it != hashGrid_edge.end() ) { // Lorsque l'itérateur `it` existe dans la table de hachage, extraire les numéros de triangles et les ajouter à `neighbors`
             for (int tri : it->second) {
-                if ( tri != tri_id ) neighbors.push_back ( tri ) ; // 这里添加的是下标
+                if ( tri != tri_id ) neighbors.push_back ( tri ) ; //  ici tri  = tri_id 
             }
         }
     }
-    // 去重：（如果三角形与当前共享两条边，理论上不可能，但在退化网格中可能）
+
+    // Supprimer les doublons : (Théoriquement impossible si un triangle partage deux côtés avec le courant, mais cela peut arriver dans un maillage dégradé)
     sort(neighbors.begin(), neighbors.end());
     auto last = unique(neighbors.begin(), neighbors.end());
     neighbors.erase(last, neighbors.end());
 
-    // 下标 改成 编号
+    //  tri_id ---> numero de tri
     for (auto& idx : neighbors) idx += 1;
     return neighbors;
 }
 
 // =============================================================================================================
-//  3.6： 定点标记为绿色，包含它的三角形标记为红色
+
+// 3.6： Marquer un point fixe en vert et le triangle qui le contient en rouge
 void Mesh::vsPoint (const string &filename, double x , double y , int tri_id ) const {
     ofstream file (filename) ;
     if ( ! file.is_open()) throw runtime_error("file not found"); 
-    // 设置 gnuplot 参数：
+    // Configuration des paramètres de gnuplot :
     file << "set size ratio -1" << endl;
     file << "set title 'Point ( " << x << " , " << y << " ) is in triangle " << tri_id + 1 << " ' " << endl;
     file << "set xlabel 'x'" << endl;
     file << "set ylabel 'y' " << endl;
-    
-    // 绘制所有三角形：
+
     file << "plot '-' w l lc 'black' lw 1 title 'Mesh',\\" << endl;
     file << "     '-' w l lc 'red' lw 3 title 'Triangle " << tri_id + 1 << "',\\" << endl;
     file << "     '-' w p pt 7 ps 2 lc 'green' title 'Point'" << endl;
 
-    // 所有三角形：
+    // tous les triangles :
     for (int i = 0; i <  static_cast<int>(triangle.size()); i++)
     {
         file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl;
@@ -303,7 +306,7 @@ void Mesh::vsPoint (const string &filename, double x , double y , int tri_id ) c
         file << endl; 
     }
     file << "e" << endl;
-    // 高亮三角形：
+    // Mettre en surbrillance le triangle :
         if ( tri_id >= 0 && tri_id < static_cast<int>(triangle.size()) )
     {
         file << node[triangle[tri_id][0]][0] << " " << node[triangle[tri_id][0]][1] << endl; 
@@ -313,19 +316,19 @@ void Mesh::vsPoint (const string &filename, double x , double y , int tri_id ) c
     }
     file << "e" <<endl;
 
-    // 高亮点：
+    // Mettre en surbrillance le point :
     file << x << " " << y << endl;
     file << "e" << endl;
 
-    file << "pause -1" << endl;   // 等待按键关闭窗口
+    file << "pause -1" << endl;   
     file.close();
 }
 
-// 3.6 : 指定的三角形标记为红色，它的相邻三角形标记为蓝色
+// 3.6 : Marquer le triangle spécifié en rouge et ses triangles voisins en bleu
 void Mesh::vsNeighbors (const string &filename, int n , const vector<int> &neighbors ) const {
     ofstream file (filename) ;
     if ( ! file.is_open()) throw runtime_error("file not found"); 
-    // 设置 gnuplot 参数：
+    // configuration des paramètres de gnuplot :
     file << "set size ratio -1" << endl;
     file << "set title 'Triangle " << n << " and its neighbors'" << endl;
     file << "set key off" << endl;
@@ -333,7 +336,7 @@ void Mesh::vsNeighbors (const string &filename, int n , const vector<int> &neigh
     file << "plot '-' w l lc 'black' lw 1 title 'Other triangles',\\" << endl;
     file << "     '-' w l lc 'red' lw 3 title 'Target triangle',\\" << endl;
     file << "     '-' w l lc 'blue' lw 2 title 'Neighbors'" << endl;
-    // 所有三角形：
+    // tous les triangles :
     for (int i = 0; i <  static_cast<int>(triangle.size()); i++)
     {
         file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl;
@@ -343,7 +346,7 @@ void Mesh::vsNeighbors (const string &filename, int n , const vector<int> &neigh
         file << endl; 
     }
     file << "e" << endl;
-    // 目标三角形：
+    // triangle cible :
     if ( n >= 1 && n <= static_cast<int>(triangle.size())){
     file << node[triangle[n-1][0]][0] << " " << node[triangle[n-1][0]][1] << endl;
     file << node[triangle[n-1][1]][0] << " " << node[triangle[n-1][1]][1] << endl; 
@@ -351,7 +354,7 @@ void Mesh::vsNeighbors (const string &filename, int n , const vector<int> &neigh
     file << node[triangle[n-1][0]][0] << " " << node[triangle[n-1][0]][1] << endl; 
     }
     file << "e" << endl;
-    // 相邻三角形：
+    // tirangle voisin
     for (int i : neighbors) 
     {
         int neighbor_idx = i - 1;
