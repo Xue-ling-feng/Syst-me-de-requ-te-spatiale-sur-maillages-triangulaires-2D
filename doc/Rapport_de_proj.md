@@ -3,6 +3,7 @@
 #### ZHOU Mengzhe 
 #### 21927425
 
+---
 ## 3.1 Structure de données     
 J’ai défini le paramètre raf du fichier square.geo à 0,5 , ce qui m’a permis d’obtenir le fichier square.msh comportant 12 noeuds et 26 éléments.
 
@@ -55,8 +56,10 @@ Elle est constituée de 3 données :
 3. Les fonctions de la classe Mesh sont exécutées pour vérifier si les données sont correctes.
 4. Si les données sont valides, le programme affiche les résultats.
 
+---
 ## 3.2 Recherche simple
 
+---
 ## 3.3 Recherche avec hashmap
 #### Vérifiez l’accélération:
 si raf = 0.5 ，le temps d’exécution de la méthode simple est de 5e-7 s , celui de la méthode hashmap est également de 5e-7 s     
@@ -69,6 +72,7 @@ Alors nous pouvons en conclure que plus le maillage est fin, plus l’effet d’
 En effet, la méthode hashmap ne parcourt que les triangles situés dans une petite case spatiale, alors que la méthode simple doit parcourir l’ensemble des triangles du maillage.        
 Par conséquent, la méthode hashmap est toujours plus performante quelle que soit la finesse du maillage, et l’écart de temps d’exécution entre les deux méthodes s’agrandit progressivement avec l’affinement du maillage.    
 
+---
 ## 3.4 Bibliothèques alternatives
 #### Comparer les performances sur des gros maillages:    
 | step | raf | hashmap | parallel-hashmap |
@@ -98,7 +102,7 @@ Donc parallel-hashmap est plus efficace que unordered_map sur des gros maillages
 Bien qu'avec une optimisation uniquement au niveau de la bibliothèque, le gain de performance par recherche individuelle ne soit pas évident, voire légèrement plus lent.     
 Cependant, lors d'un grand nombre de recherches, à mesure que la précision du maillage augmente, l'avantage de parallel-hashmap devient plus marqué.      
 
-
+---
 ## 3.5 Recherche des triangles voisins      
 Choisissez l'élément triangle numéro 4 comme triangle cible, et mesurez le temps consommé par la fonction naïve et par la recherche avec parallel-hashmap dans des maillages de différentes précisions.      
 
@@ -111,9 +115,10 @@ Donc on peut donc clairement conclure que :
 l'efficacité de la recherche avec parallel-hashmap est bien supérieure à celle avec la fonction naïve.          
 De plus, cet avantage devient encore plus marqué à mesure que la finesse du maillage augmente.      
 
-
+---
 ## 3.6 Visualisations     
 
+---
 ## Annexe : Utilisation de l’intelligence artificielle     
 Les prompts que j’utilise fréquemment sont les suivants :        
 - Traduire en chinois, sans écrire de code  
