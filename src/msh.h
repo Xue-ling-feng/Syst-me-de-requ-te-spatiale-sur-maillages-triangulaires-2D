@@ -64,6 +64,9 @@ public:
     void buildHashGrid_edge() ; // 3.5： 预处理：构建哈希表
     vector<int > rechercheTriVHash (int n ) const ; // 3.5 : 哈希搜索
 
+    void vsPoint (const string &filename, double x , double y , int tri_id ) const ; //  3.6： 定点标记为绿色，包含它的三角形标记为红色
+    void vsNeighbors (const string &filename, int n , const vector<int> &neighbors ) const ; // 3.6 : 指定的三角形标记为红色，它的相邻三角形标记为蓝色
+
 };
 
 #endif

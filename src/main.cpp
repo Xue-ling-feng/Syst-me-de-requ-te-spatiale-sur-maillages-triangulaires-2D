@@ -78,7 +78,7 @@ int main()
 
     // ===================================================================================
     // test 3.5 : 
-    int NUM_TRI = 4;
+    int NUM_TRI = 4; // 三角形的编号
     // naive : 
    auto start4 = std::chrono::steady_clock::now();
     std::vector<int> neighbor_naive = m.rechercheTriVNaive( NUM_TRI );
@@ -98,7 +98,19 @@ int main()
     printVector(neighbor_hash, name2, NUM_TRI) ;
     std::cout << name2 << "il utilise " << time_hashEdge << " s " << std::endl;
 
+    // ===================================================================================
+    // test 3.6 : 
+    // visualisation de recherche Simple  :
+    m.vsPoint( "simple_point.plt", x, y , num_simple -1 ) ;
 
+    // visualisation de recherche Hash  :
+    m.vsPoint ("hash_point.plt" , x, y, num_hash -1 ); 
+
+    // visualisation de recherche triangle voisin par fonction naive :
+    m.vsNeighbors("neighbors_naive.plt" , NUM_TRI, neighbor_naive) ; 
+
+    //  visualisation de recherche triangle voisin par hashmap :
+    m.vsNeighbors( "neighbors_hash.plt" , NUM_TRI, neighbor_hash) ;
 
     return 0;
 }

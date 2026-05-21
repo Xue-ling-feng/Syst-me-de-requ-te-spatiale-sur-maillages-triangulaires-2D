@@ -1,6 +1,7 @@
 #include "msh.h"
 #include <cassert>
 #include <string>
+#include <iomanip>
 
 
 
@@ -275,5 +276,95 @@ std::vector<int > Mesh::rechercheTriVHash (int n ) const {
     for (auto& idx : neighbors) idx += 1;
     return neighbors;
 }
+
+// =============================================================================================================
+//  3.6： 定点标记为绿色，包含它的三角形标记为红色
+void Mesh::vsPoint (const string &filename, double x , double y , int tri_id ) const {
+    ofstream file (filename) ;
+    if ( ! file.is_open()) throw runtime_error("file not found"); 
+    // 设置 gnuplot 参数：
+    file << "set size ratio -1" << endl;
+    file << "set title 'Point ( " << x << " , " << y << " ) is in triangle " << tri_id + 1 << " ' " << endl;
+    file << "set xlabel 'x'" << endl;
+    file << "set ylabel 'y' " << endl;
+    
+    // 绘制所有三角形：
+    file << "plot '-' w l lc 'black' lw 1 title 'Mesh',\\" << endl;
+    file << "     '-' w l lc 'red' lw 3 title 'Triangle " << tri_id + 1 << "',\\" << endl;
+    file << "     '-' w p pt 7 ps 2 lc 'green' title 'Point'" << endl;
+
+    // 所有三角形：
+    for (int i = 0; i <  static_cast<int>(triangle.size()); i++)
+    {
+        file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl;
+        file << node[triangle[i][1]][0] << " " << node[triangle[i][1]][1] << endl; 
+        file << node[triangle[i][2]][0] << " " << node[triangle[i][2]][1] << endl; 
+        file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl; 
+        file << endl; 
+    }
+    file << "e" << endl;
+    // 高亮三角形：
+        if ( tri_id >= 0 && tri_id < static_cast<int>(triangle.size()) )
+    {
+        file << node[triangle[tri_id][0]][0] << " " << node[triangle[tri_id][0]][1] << endl; 
+        file << node[triangle[tri_id][1]][0] << " " << node[triangle[tri_id][1]][1] << endl;  
+        file << node[triangle[tri_id][2]][0] << " " << node[triangle[tri_id][2]][1] << endl;  
+        file << node[triangle[tri_id][0]][0] << " " << node[triangle[tri_id][0]][1] << endl; 
+    }
+    file << "e" <<endl;
+
+    // 高亮点：
+    file << x << " " << y << endl;
+    file << "e" << endl;
+
+    file << "pause -1" << endl;   // 等待按键关闭窗口
+    file.close();
+}
+
+// 3.6 : 指定的三角形标记为红色，它的相邻三角形标记为蓝色
+void Mesh::vsNeighbors (const string &filename, int n , const vector<int> &neighbors ) const {
+    ofstream file (filename) ;
+    if ( ! file.is_open()) throw runtime_error("file not found"); 
+    // 设置 gnuplot 参数：
+    file << "set size ratio -1" << endl;
+    file << "set title 'Triangle " << n << " and its neighbors'" << endl;
+    file << "set key off" << endl;
+
+    file << "plot '-' w l lc 'black' lw 1 title 'Other triangles',\\" << endl;
+    file << "     '-' w l lc 'red' lw 3 title 'Target triangle',\\" << endl;
+    file << "     '-' w l lc 'blue' lw 2 title 'Neighbors'" << endl;
+    // 所有三角形：
+    for (int i = 0; i <  static_cast<int>(triangle.size()); i++)
+    {
+        file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl;
+        file << node[triangle[i][1]][0] << " " << node[triangle[i][1]][1] << endl; 
+        file << node[triangle[i][2]][0] << " " << node[triangle[i][2]][1] << endl; 
+        file << node[triangle[i][0]][0] << " " << node[triangle[i][0]][1] << endl; 
+        file << endl; 
+    }
+    file << "e" << endl;
+    // 目标三角形：
+    if ( n >= 1 && n <= static_cast<int>(triangle.size())){
+    file << node[triangle[n-1][0]][0] << " " << node[triangle[n-1][0]][1] << endl;
+    file << node[triangle[n-1][1]][0] << " " << node[triangle[n-1][1]][1] << endl; 
+    file << node[triangle[n-1][2]][0] << " " << node[triangle[n-1][2]][1] << endl; 
+    file << node[triangle[n-1][0]][0] << " " << node[triangle[n-1][0]][1] << endl; 
+    }
+    file << "e" << endl;
+    // 相邻三角形：
+    for (int i : neighbors) 
+    {
+        int neighbor_idx = i - 1;
+        if(neighbor_idx <0 || neighbor_idx >= static_cast<int>(triangle.size())) continue;
+        file << node[triangle[neighbor_idx][0]][0] << " " << node[triangle[neighbor_idx][0]][1] << endl;
+        file << node[triangle[neighbor_idx][1]][0] << " " << node[triangle[neighbor_idx][1]][1] << endl; 
+        file << node[triangle[neighbor_idx][2]][0] << " " << node[triangle[neighbor_idx][2]][1] << endl; 
+        file << node[triangle[neighbor_idx][0]][0] << " " << node[triangle[neighbor_idx][0]][1] << endl; 
+        file << endl;
+    }
+    file << "e" << endl;
+    file <<"pause -1" <<endl;
+    file.close() ;
+} 
 
 
