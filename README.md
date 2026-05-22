@@ -20,5 +20,13 @@ mkdir build
 cmake .. -G "MinGW Makefiles"
 cmake --build .
 ./go.exe
-```
+```     
+
+## Complément d'information :       
+J'ai créé deux branches dans le projet : main et develop.       
+Seules les questions 1, 2 et 3 sont terminées et poussées sur la branche main.      
+Les étapes allant de 3.1 à 3.6 sont réalisées sur la branche develop.       
+
+Par ailleurs, pour faciliter ma programmation, les anciennes versions du code contiennent beaucoup de caractères chinois. Seuls les fichiers de la version finale sont entièrement rédigés en français.      
+Je m'excuse pour toute gêne occasionnée lors de la consultation des anciennes versions.     
 
